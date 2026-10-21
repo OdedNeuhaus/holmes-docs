@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make check)",
+      "Bash(make build)",
+      "Bash(make dev)",
+      "Bash(make stop)",
+      "Bash(make install)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git ls-files:*)",
+      "Bash(git switch -c docs/:*)",
+      "Bash(git add docs/:*)",
+      "Bash(git add site/src/data/sections.tsx)",
+      "Read(inbox/**)",
+      "Read(docs/**)",
+      "Read(docs/_templates/**)"
+    ],
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)"
+    ]
+  }
+}

@@ -1,0 +1,269 @@
+/*
+ * Global styles for the docs site.
+ * Brand colors come from the logo: mint #56F5CA and deep teal #11383A.
+ */
+
+/* ─────────── Tokens — Light ─────────── */
+:root {
+  --brand-mint: #56f5ca;
+  --brand-deep: #11383a;
+  --brand-ink: #0a1f21;
+
+  --ifm-color-primary: #0d8468;
+  --ifm-color-primary-dark: #0c775e;
+  --ifm-color-primary-darker: #0b7058;
+  --ifm-color-primary-darkest: #095c49;
+  --ifm-color-primary-light: #0e9172;
+  --ifm-color-primary-lighter: #0f9878;
+  --ifm-color-primary-lightest: #12ad89;
+
+  --ifm-background-color: #fbfdfc;
+  --ifm-background-surface-color: #f2f8f6;
+  --ifm-font-color-base: #14292b;
+  --ifm-heading-color: #0c2426;
+  --ifm-toc-border-color: #dbe9e5;
+  --ifm-color-emphasis-200: #e3eeeb;
+
+  --ifm-font-family-base: 'Heebo Variable', 'Heebo', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+  --ifm-heading-font-family: 'Rubik Variable', 'Rubik', var(--ifm-font-family-base);
+  --ifm-font-family-monospace: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+  --ifm-font-size-base: 106.25%;
+  --ifm-line-height-base: 1.75;
+  --ifm-heading-font-weight: 700;
+  --ifm-code-font-size: 88%;
+  --ifm-global-radius: 10px;
+  --ifm-card-border-radius: 14px;
+  --ifm-navbar-height: 4rem;
+  --ifm-navbar-shadow: none;
+
+  --docusaurus-highlighted-code-line-bg: rgba(13, 132, 104, 0.12);
+  --glass-bg: rgba(251, 253, 252, 0.78);
+  --card-border: #dbe9e5;
+  --card-glow: rgba(13, 132, 104, 0.18);
+}
+
+/* ─────────── Tokens — Dark ─────────── */
+[data-theme='dark'] {
+  --ifm-color-primary: #56f5ca;
+  --ifm-color-primary-dark: #37f3c0;
+  --ifm-color-primary-darker: #28f2bb;
+  --ifm-color-primary-darkest: #0ddca3;
+  --ifm-color-primary-light: #75f7d4;
+  --ifm-color-primary-lighter: #84f8d9;
+  --ifm-color-primary-lightest: #b1fbe7;
+
+  --ifm-background-color: #081517;
+  --ifm-background-surface-color: #0d2124;
+  --ifm-font-color-base: #d7ebe6;
+  --ifm-heading-color: #effaf7;
+  --ifm-toc-border-color: #173538;
+  --ifm-color-emphasis-200: #173538;
+  --ifm-color-emphasis-300: #1f4447;
+  --ifm-hr-background-color: #173538;
+  --ifm-code-background: #10292c;
+
+  --docusaurus-highlighted-code-line-bg: rgba(86, 245, 202, 0.1);
+  --glass-bg: rgba(8, 21, 23, 0.72);
+  --card-border: #173538;
+  --card-glow: rgba(86, 245, 202, 0.22);
+}
+
+/* ─────────── Base ─────────── */
+html {
+  font-feature-settings: 'kern';
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--brand-mint);
+  color: var(--brand-deep);
+}
+
+h1, h2, h3, h4 {
+  letter-spacing: -0.01em;
+}
+
+.markdown h1:first-child {
+  font-size: 2.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.markdown h2 {
+  margin-top: 2.75rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--ifm-toc-border-color);
+}
+
+.markdown img {
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+}
+
+.markdown a:not(.card) {
+  text-underline-offset: 3px;
+}
+
+/* ─────────── Code in RTL: code is always left-to-right ─────────── */
+/* Docusaurus runs rtlcss on all CSS; the ignore markers stop it from flipping ltr to rtl */
+/*rtl:begin:ignore*/
+pre,
+pre code,
+.prism-code,
+.theme-code-block,
+.docusaurus-mermaid-container {
+  direction: ltr;
+  text-align: left;
+}
+
+/* Inline code inside Hebrew text: isolated so it doesn't break the sentence direction */
+:not(pre) > code {
+  unicode-bidi: isolate;
+  direction: ltr;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  padding: 0.1rem 0.35rem;
+}
+/*rtl:end:ignore*/
+
+/* Heading anchor: its '#' is a bidi "number terminator", so without isolation
+   it binds to a number that ends a heading and leaves an invisible gap
+   in the middle of the title (e.g. "... עם 7180"). */
+.hash-link {
+  unicode-bidi: isolate;
+}
+
+.theme-code-block {
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  box-shadow: 0 8px 24px -16px rgba(0, 0, 0, 0.35);
+}
+
+/* ─────────── Navbar ─────────── */
+.navbar {
+  background: var(--glass-bg);
+  backdrop-filter: saturate(160%) blur(14px);
+  -webkit-backdrop-filter: saturate(160%) blur(14px);
+  border-bottom: 1px solid var(--ifm-toc-border-color);
+}
+
+.navbar__title {
+  font-family: var(--ifm-heading-font-family);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.navbar__logo img {
+  transition: transform 0.4s ease;
+}
+
+.navbar__brand:hover .navbar__logo img {
+  transform: rotate(-8deg) scale(1.06);
+}
+
+/* ─────────── Sidebar ─────────── */
+.theme-doc-sidebar-container {
+  border-inline-end: 1px solid var(--ifm-toc-border-color) !important;
+}
+
+.menu {
+  font-size: 0.95rem;
+}
+
+.menu__link {
+  border-radius: 8px;
+}
+
+/*rtl:begin:ignore*/
+.menu__link--active:not(.menu__link--sublist) {
+  background: linear-gradient(90deg, transparent, var(--docusaurus-highlighted-code-line-bg));
+  box-shadow: inset -3px 0 0 var(--ifm-color-primary);
+  font-weight: 600;
+}
+/*rtl:end:ignore*/
+
+.menu__list-item-collapsible--active {
+  background: transparent;
+}
+
+/* ─────────── Cards (DocCardList) ─────────── */
+.card {
+  border: 1px solid var(--card-border) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  border-color: var(--ifm-color-primary) !important;
+  box-shadow: 0 12px 30px -12px var(--card-glow) !important;
+}
+
+/* Card titles are h2 inside .markdown: undo the article h2 spacing and underline */
+.markdown .card h2 {
+  margin-top: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+/* Show the full card description instead of truncating it to one line */
+.theme-doc-card-description.text--truncate {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+/* ─────────── Admonitions ─────────── */
+.theme-admonition {
+  border-radius: 12px;
+  border-inline-start-width: 4px;
+}
+
+/* ─────────── Tables ─────────── */
+.markdown table {
+  display: table;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.markdown table thead tr {
+  background: var(--ifm-background-surface-color);
+}
+
+.markdown table th,
+.markdown table td {
+  border: none;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.markdown table tr:last-child td {
+  border-bottom: none;
+}
+
+.markdown table tr:nth-child(2n) {
+  background: transparent;
+}
+
+/* ─────────── TOC ─────────── */
+.table-of-contents__link--active {
+  font-weight: 600;
+}
+
+/* ─────────── Footer ─────────── */
+.footer--dark {
+  --ifm-footer-background-color: #0a1f21;
+  background: radial-gradient(1200px 300px at 50% 0%, rgba(86, 245, 202, 0.08), transparent 70%), #0a1f21;
+  border-top: 1px solid #173538;
+}
+
+.footer__title {
+  font-family: var(--ifm-heading-font-family);
+  color: var(--brand-mint);
+}
+
+/* ─────────── Scrollbar ─────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ifm-color-emphasis-300) transparent;
+}

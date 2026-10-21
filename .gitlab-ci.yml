@@ -1,0 +1,116 @@
+# ─────────────────────────────────────────────────────────────
+# Docs site pipeline
+#   MR   → content checks + site build (fails on broken links) + helm lint
+#   main → build image, push to registry, bump the tag in values.yaml
+#          (commit with [skip ci]) → ArgoCD syncs and deploys.
+#
+# Required CI/CD variables (Settings → CI/CD → Variables):
+#   GITOPS_TOKEN   Project Access Token with write_repository (masked, protected)
+#   NPM_REGISTRY   internal npm registry URL (e.g. Nexus)
+#   IMAGE_REPO     image repository, if not using the GitLab registry
+#   REGISTRY / REGISTRY_USER / REGISTRY_PASSWORD  if not using the GitLab registry
+# ─────────────────────────────────────────────────────────────
+
+variables:
+  # images: point these at the internal mirror
+  NODE_IMAGE: node:22-bookworm
+  NGINX_IMAGE: nginxinc/nginx-unprivileged:stable-alpine
+  DOCKER_IMAGE: docker:27
+  DIND_IMAGE: docker:27-dind
+  HELM_IMAGE: alpine/helm:3.16.4
+  GIT_IMAGE: alpine/git:2.47.2
+
+  NPM_REGISTRY: ""
+  IMAGE_REPO: $CI_REGISTRY_IMAGE
+  REGISTRY: $CI_REGISTRY
+  REGISTRY_USER: $CI_REGISTRY_USER
+  REGISTRY_PASSWORD: $CI_REGISTRY_PASSWORD
+
+  VALUES_FILE: deploy/helm/holmesgpt-docs/values.yaml
+  GIT_DEPTH: "0"   # full history, needed for "last updated by" on each page
+
+stages: [test, build, deploy]
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# ─────────── test ───────────
+site:build:
+  stage: test
+  image: $NODE_IMAGE
+  cache:
+    key:
+      files: [site/package-lock.json]
+    paths: [site/.npm/]
+  before_script:
+    - cd site
+  script:
+    - if [ -n "$NPM_REGISTRY" ]; then npm config set registry "$NPM_REGISTRY"; fi
+    - npm ci --cache .npm --prefer-offline --no-audit --no-fund
+    - npm run check
+    - npm run typecheck
+    - npm run build
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+chart:lint:
+  stage: test
+  image:
+    name: $HELM_IMAGE
+    entrypoint: [""]
+  script:
+    - helm lint deploy/helm/holmesgpt-docs
+    - helm template holmesgpt-docs deploy/helm/holmesgpt-docs > /dev/null
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: [deploy/**/*]
+
+# ─────────── build ───────────
+image:build:
+  stage: build
+  image: $DOCKER_IMAGE
+  services:
+    - name: $DIND_IMAGE
+      alias: docker
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  script:
+    - echo "$REGISTRY_PASSWORD" | docker login -u "$REGISTRY_USER" --password-stdin "$REGISTRY"
+    - >
+      docker build
+      --build-arg NODE_IMAGE="$NODE_IMAGE"
+      --build-arg NGINX_IMAGE="$NGINX_IMAGE"
+      --build-arg NPM_REGISTRY="$NPM_REGISTRY"
+      -f deploy/Dockerfile
+      -t "$IMAGE_REPO:$CI_COMMIT_SHORT_SHA"
+      .
+    - docker push "$IMAGE_REPO:$CI_COMMIT_SHORT_SHA"
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# ─────────── deploy (GitOps) ───────────
+gitops:bump-tag:
+  stage: deploy
+  image:
+    name: $GIT_IMAGE
+    entrypoint: [""]
+  resource_group: gitops
+  script:
+    - git config user.name "docs-ci"
+    - git config user.email "docs-ci@noreply.${CI_SERVER_HOST}"
+    - git remote set-url origin "https://oauth2:${GITOPS_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
+    - git fetch origin "$CI_DEFAULT_BRANCH"
+    # If a newer commit already landed on main, its own pipeline will bump the tag
+    - |
+      if [ "$(git log -1 --format=%H origin/$CI_DEFAULT_BRANCH --invert-grep --grep='\[skip ci\]')" != "$CI_COMMIT_SHA" ]; then
+        echo "Newer commit on $CI_DEFAULT_BRANCH — skipping tag bump."; exit 0
+      fi
+    - git checkout -B "$CI_DEFAULT_BRANCH" "origin/$CI_DEFAULT_BRANCH"
+    - sed -i -E "s|^([[:space:]]*tag:).*# ci:image-tag|\1 \"${CI_COMMIT_SHORT_SHA}\"  # ci:image-tag|" "$VALUES_FILE"
+    - git diff --stat
+    - git commit -am "chore(deploy): holmesgpt-docs → ${CI_COMMIT_SHORT_SHA} [skip ci]" || echo "Nothing to commit"
+    - git push origin "$CI_DEFAULT_BRANCH"
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

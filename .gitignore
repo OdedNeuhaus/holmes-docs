@@ -1,0 +1,13 @@
+# Site engine
+/site/node_modules
+/site/build
+/site/.docusaurus
+/site/.cache-loader
+/.docusaurus
+
+# Misc
+.DS_Store
+.env
+.env.local
+npm-debug.log*
+.idea

@@ -1,0 +1,11 @@
+# The build context is the repo root. .git is kept on purpose (for "last updated by").
+site/node_modules
+site/build
+site/.docusaurus
+site/.cache-loader
+deploy/helm
+deploy/argocd
+inbox
+.claude
+*.md
+!docs/**/*.md

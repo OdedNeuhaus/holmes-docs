@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 290" width="720" height="290" font-family="Heebo, Rubik, 'Segoe UI', Arial, sans-serif">
+  <defs>
+    <marker id="arrow-mtbf" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#11383A"/>
+    </marker>
+    <marker id="arrow-mttr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#D63B3B"/>
+    </marker>
+    <marker id="arrow-axis" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0L10 5L0 10z" fill="#333"/>
+    </marker>
+  </defs>
+
+  <!-- Card background so the diagram stays readable in dark mode -->
+  <rect x="0.5" y="0.5" width="719" height="289" rx="12" fill="#FFFFFF" stroke="#D0D7DE"/>
+
+  <!-- MTTR span (diagnose + repair) -->
+  <rect x="150" y="128" width="330" height="82" fill="#D63B3B" fill-opacity="0.08"/>
+
+  <!-- Event markers -->
+  <g stroke="#333" stroke-width="2">
+    <line x1="150" y1="40" x2="150" y2="222"/>
+    <line x1="330" y1="120" x2="330" y2="222"/>
+    <line x1="480" y1="120" x2="480" y2="222"/>
+    <line x1="620" y1="40" x2="620" y2="222"/>
+  </g>
+
+  <!-- Time axis -->
+  <line x1="30" y1="210" x2="668" y2="210" stroke="#333" stroke-width="2" marker-end="url(#arrow-axis)"/>
+  <text x="696" y="215" font-size="15" font-weight="600" fill="#333" text-anchor="middle" direction="rtl">זמן</text>
+
+  <!-- MTBF -->
+  <line x1="152" y1="68" x2="618" y2="68" stroke="#11383A" stroke-width="2.5" marker-start="url(#arrow-mtbf)" marker-end="url(#arrow-mtbf)"/>
+  <text x="385" y="56" font-size="20" font-weight="700" fill="#11383A" text-anchor="middle">MTBF</text>
+
+  <!-- MTTR -->
+  <line x1="152" y1="112" x2="478" y2="112" stroke="#D63B3B" stroke-width="2.5" marker-start="url(#arrow-mttr)" marker-end="url(#arrow-mttr)"/>
+  <text x="315" y="100" font-size="20" font-weight="700" fill="#D63B3B" text-anchor="middle">MTTR</text>
+
+  <!-- Phases -->
+  <g font-size="15" fill="#333" text-anchor="middle" direction="rtl">
+    <text x="90" y="192">פעילות תקינה</text>
+    <text x="240" y="192">אבחון</text>
+    <text x="405" y="192">תיקון</text>
+    <text x="550" y="192">פעילות תקינה</text>
+  </g>
+
+  <!-- Events -->
+  <g font-size="14" font-weight="600" fill="#333" text-anchor="middle" direction="rtl">
+    <text x="150" y="246">תקלה ראשונה</text>
+    <text x="330" y="246">תחילת התיקון</text>
+    <text x="480" y="246">סיום התיקון</text>
+    <text x="620" y="246">תקלה שנייה</text>
+  </g>
+</svg>
