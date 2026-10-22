@@ -1,0 +1,12 @@
+# The site engine lives in the base image; nothing is installed or built here
+/site/node_modules
+/site/build
+/site/.docusaurus
+*.tmp
+
+# Misc
+.DS_Store
+.env
+.env.local
+npm-debug.log*
+.idea

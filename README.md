@@ -12,6 +12,7 @@
 | 📁 `inbox/` | חומר גולמי ל-Claude (לא נכנס ל-Git) |
 | 📁 `site/` | מנוע האתר (Docusaurus). לא צריך לגעת. |
 | 📁 `deploy/` | Docker, Helm ו-ArgoCD. לא צריך לגעת. |
+| 📁 `onprem/` | גרסה מצומצמת של ה-repo לרשת הסגורה (ראו למטה) |
 
 ## איך מוסיפים תיעוד
 
@@ -43,13 +44,15 @@ site/                         Docusaurus
 └── scripts/check-docs.mjs    make check (also runs in CI)
 deploy/
 ├── Dockerfile                build (Node) → nginx non-root on port 8080
+├── Dockerfile.base           engine image for onprem/ (Node + node_modules + site/, no content)
 ├── nginx.conf
 ├── helm/holmesgpt-docs/      Helm chart
 └── argocd/application.yaml   ArgoCD Application
 CLAUDE.md                     instructions for Claude
 .claude/skills/add-docs/      the /add-docs workflow
 .gitlab-ci.yml                MR: checks + build · main: image + tag bump
-Makefile                      check / build / dev / stop
+Makefile                      check / build / dev / stop / base / base-save
+onprem/                       the content-only repo for the air-gapped network (copied there as-is)
 ```
 
 ### איך זה נפרס
@@ -81,6 +84,15 @@ merge → main ──► GitLab CI: docker build + push  (tag = short SHA)
 5. **ArgoCD**: `kubectl apply -n argocd -f deploy/argocd/application.yaml`
 
 build ידני של ה-image (מהשורש): `docker build -f deploy/Dockerfile -t holmesgpt-docs .`
+
+### הרשת הסגורה: image בסיס ו-`onprem/`
+
+ברשת הסגורה קשה להריץ `npm install`, ולכן הבנייה שם מפוצלת לשניים:
+
+- **מנוע (כאן):** `make base` בונה את `holmesgpt-docs-base` מ-`deploy/Dockerfile.base`: Node, `node_modules` והתיקייה `site/`, בלי תוכן. `make base-save` שומר אותו כ-`holmesgpt-docs-base.tar.gz` להעברה.
+- **תוכן (שם):** התיקייה `onprem/` היא ה-repo שמעתיקים לרשת הסגורה: `docs/`, ה-skill `/add-docs`, `CLAUDE.md`, ‏Dockerfile שבונה `FROM` את image הבסיס, ו-CI. ה-README שלה מסביר את ההקמה.
+
+את `onprem/` יצרנו פעם אחת כהעתק של התוכן. מרגע שהוא הועתק, ה-repo ברשת הסגורה הוא המקור של התיעוד. שינויים במנוע (עיצוב, עמוד הבית, תלויות) ממשיכים להיעשות כאן, ומגיעים לשם כ-image בסיס חדש.
 
 </details>
 

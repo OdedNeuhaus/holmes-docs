@@ -1,0 +1,55 @@
+replicaCount: 2
+
+image:
+  repository: registry.example.internal/holmesgpt/holmesgpt-docs
+  # CI updates the next line on every merge to main. Don't change the trailing comment.
+  tag: "latest"  # ci:image-tag
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+# - name: registry-credentials
+
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations: {}
+  host: holmesgpt-docs.example.internal
+  tls:
+    enabled: false
+    secretName: holmesgpt-docs-tls
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    memory: 128Mi
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

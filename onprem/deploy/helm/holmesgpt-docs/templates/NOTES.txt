@@ -1,0 +1,6 @@
+HolmesGPT docs deployed — image {{ .Values.image.repository }}:{{ .Values.image.tag }}
+{{- if .Values.ingress.enabled }}
+URL: http{{ if .Values.ingress.tls.enabled }}s{{ end }}://{{ .Values.ingress.host }}
+{{- else }}
+kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "holmesgpt-docs.fullname" . }} 8080:{{ .Values.service.port }}
+{{- end }}

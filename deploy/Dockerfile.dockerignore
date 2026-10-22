@@ -6,6 +6,7 @@ site/.cache-loader
 deploy/helm
 deploy/argocd
 inbox
+onprem
 .claude
 *.md
 !docs/**/*.md

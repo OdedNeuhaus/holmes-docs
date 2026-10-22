@@ -1,0 +1,39 @@
+# syntax=docker/dockerfile:1
+#
+# The docs "engine" image: Node, Docusaurus, node_modules and the site source (site/),
+# with no content. The on-prem content repo (onprem/ in this repo) builds on top of it:
+# it copies docs/ (plus any site/ overrides) into /app and runs the build, no npm needed.
+#
+#   make base        build it here (needs npm registry access)
+#   make base-save   build it and save it as a .tar.gz to carry into the air-gapped network
+#
+# Layout inside the image (everything owned by the "node" user, which the image runs as):
+#   /app/site    the Docusaurus project, WORKDIR
+#   /app/docs    where the content goes (not in this image)
+#
+# The build context is the repo root, but only site/ is sent (Dockerfile.base.dockerignore).
+
+ARG NODE_IMAGE=node:22-bookworm
+
+# node:22-bookworm (not alpine) because it ships git, needed for "last updated by" on each page.
+FROM ${NODE_IMAGE}
+ARG NPM_REGISTRY=""
+ENV NPM_CONFIG_UPDATE_NOTIFIER=false \
+    NPM_CONFIG_FUND=false \
+    NPM_CONFIG_AUDIT=false
+
+WORKDIR /app
+RUN chown node:node /app
+USER node
+
+COPY --chown=node:node site/package.json site/package-lock.json site/
+RUN cd site \
+ && if [ -n "$NPM_REGISTRY" ]; then npm config set registry "$NPM_REGISTRY"; fi \
+ && npm ci \
+ && npm cache clean --force
+
+COPY --chown=node:node site/ site/
+
+WORKDIR /app/site
+EXPOSE 3000
+CMD ["npm", "start", "--", "--no-open"]

@@ -35,6 +35,7 @@ For the step-by-step intake workflow, use the **`/add-docs` skill** (`.claude/sk
 | "Last updated by" | Enabled only when the build runs inside a git repo with at least one commit (`IN_GIT` in config). |
 | Broken links | `onBrokenLinks: 'throw'` and `onBrokenMarkdownLinks: 'throw'`, so a broken internal link fails the build. |
 | Styling | `site/src/css/custom.css` (brand: mint `#56F5CA`, deep teal `#11383A`). Homepage is `site/src/pages/index.tsx`. |
+| Engine image | `deploy/Dockerfile.base` (`make base`, `make base-save`) builds `holmesgpt-docs-base`: Node, `node_modules` and `site/` under `/app/site`, without content. The air-gapped content repo in `onprem/` builds `FROM` it. `SITE_URL`, `REPO_URL` and `DEFAULT_BRANCH` in the config can be overridden by the `DOCS_SITE_URL`, `DOCS_REPO_URL` and `DOCS_DEFAULT_BRANCH` env vars. |
 | Runtime | `deploy/Dockerfile` has two stages: `node:22-bookworm` build, then `nginx-unprivileged` on port 8080. The build context is the repo root (`docker build -f deploy/Dockerfile .`), with ignores in `deploy/Dockerfile.dockerignore`. `deploy/nginx.conf` holds the nginx config. |
 | Deploy | GitLab CI (`.gitlab-ci.yml`): MR runs check, typecheck and build. `main` builds the image, then commits the new tag to `deploy/helm/holmesgpt-docs/values.yaml` (`[skip ci]`), then ArgoCD syncs. |
 
@@ -59,9 +60,12 @@ site/                         ← Docusaurus project (package.json, node_modules
 ├── src/data/sections.tsx     ← homepage/intro cards, one per top-level section
 ├── src/components/           ← SectionGrid (cards), SectionPages (section landing lists)
 └── scripts/check-docs.mjs    ← content linter (`make check`)
-deploy/                       ← Dockerfile, nginx.conf, Helm chart, ArgoCD Application (leave alone)
-Makefile                      ← check / build / dev / stop (uses local npm, else Docker); run from the root
+deploy/                       ← Dockerfile, Dockerfile.base (engine image), nginx.conf, Helm chart, ArgoCD Application (leave alone)
+onprem/                       ← the content-only repo for the air-gapped network (own CLAUDE.md, skill, Makefile, CI)
+Makefile                      ← check / build / dev / stop / base / base-save (uses local npm, else Docker); run from the root
 ```
+
+`onprem/` is a one-time snapshot of `docs/` plus on-prem variants of `CLAUDE.md` and the `/add-docs` skill. It is not built by this site. Don't edit it as part of content work here.
 
 ### Current sections and what belongs in each
 

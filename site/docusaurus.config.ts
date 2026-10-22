@@ -4,11 +4,12 @@ import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
 // ─────────────────────────────────────────────────────────────
-// Values to adjust for your environment
+// Values to adjust for your environment.
+// Env vars override them at build time (the on-prem content repo sets them in CI).
 // ─────────────────────────────────────────────────────────────
-const SITE_URL = 'https://holmesgpt-docs.example.internal';
-const REPO_URL = 'https://gitlab.example.internal/your-group/holmesgpt-docs';
-const DEFAULT_BRANCH = 'main';
+const SITE_URL = process.env.DOCS_SITE_URL || 'https://holmesgpt-docs.example.internal';
+const REPO_URL = process.env.DOCS_REPO_URL || 'https://gitlab.example.internal/your-group/holmesgpt-docs';
+const DEFAULT_BRANCH = process.env.DOCS_DEFAULT_BRANCH || 'main';
 
 // "Last updated by" needs git history. Without git, or with no commits yet, turn it off.
 const IN_GIT = (() => {
@@ -90,6 +91,7 @@ const config: Config = {
         hashed: true,
         indexBlog: false,
         docsRouteBasePath: '/docs',
+        docsDir: '../docs',
         language: ['he', 'en'],
         highlightSearchTermsOnTargetPage: true,
         searchResultLimits: 10,

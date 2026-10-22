@@ -1,0 +1,7 @@
+# The engine image only needs site/ (no content, no git history).
+*
+!site/
+site/node_modules
+site/build
+site/.docusaurus
+site/.cache-loader

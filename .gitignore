@@ -11,3 +11,6 @@
 .env.local
 npm-debug.log*
 .idea
+
+# Engine image export (make base-save)
+/holmesgpt-docs-base*.tar.gz

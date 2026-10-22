@@ -1,0 +1,7 @@
+# The build context is the repo root. .git is kept on purpose (for "last updated by").
+deploy/helm
+deploy/argocd
+inbox
+.claude
+*.md
+!docs/**/*.md
